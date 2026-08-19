@@ -49,13 +49,16 @@ st.divider()
 
 st.sidebar.title("📈 Stock Search")
 
-ticker = st.sidebar.text_input(
-    "Enter Stock Symbol",
-    value="RELIANCE"
-)
+with st.sidebar.form("search_form"):
 
-ticker = ticker.strip().upper()
+    ticker = st.text_input(
+        "Enter Stock Symbol",
+        value="RELIANCE"
+    ).strip().upper()
 
+    search_clicked = st.form_submit_button(
+        "🔍 Search"
+    )
 
 st.sidebar.markdown("---")
 
@@ -77,10 +80,9 @@ quick = st.sidebar.selectbox(
     ]
 )
 
-if quick != ticker:
+if st.sidebar.button("Use Selected Stock"):
+
     ticker = quick
-
-
 st.sidebar.markdown("---")
 
 if st.sidebar.button(
