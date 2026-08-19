@@ -21,7 +21,7 @@ st.set_page_config(
 
 
 # --------------------------------------------------
-# LOAD AI ONLY ONCE
+# CACHE
 # --------------------------------------------------
 
 @st.cache_resource
@@ -29,6 +29,19 @@ def get_ai():
 
     return AIAnalyzer()
 
+
+@st.cache_data(ttl=300)
+def load_stock(symbol):
+
+    stock = StockFetcher(symbol)
+
+    data = stock.fetch_all()
+
+    history = IndicatorEngine(
+        data["history"]
+    ).calculate_all()
+
+    return stock, data, history
 
 # --------------------------------------------------
 # HEADER
@@ -89,6 +102,7 @@ if st.sidebar.button(
     "🔄 Refresh",
     use_container_width=True
 ):
+    st.cache_data.clear()
 
     st.rerun()
 
@@ -128,23 +142,38 @@ try:
 
     with st.spinner("Loading Market Data..."):
 
-        stock = StockFetcher(ticker)
-
-        data = stock.fetch_all()
-
-        history = IndicatorEngine(
-            data["history"]
-        ).calculate_all()
+        stock, data, history = load_stock(
+            ticker
+        )
 
         info = data["info"]
 
 except Exception as e:
 
-    st.error(str(e))
+    message = str(e)
+
+    if (
+        "Too Many Requests" in message
+        or
+        "429" in message
+    ):
+
+        st.error(
+            """
+🚫 Yahoo Finance Rate Limit
+
+Too many requests were sent.
+
+Please wait 30–60 seconds
+and try again.
+"""
+        )
+
+    else:
+
+        st.error(message)
 
     st.stop()
-
-
 # --------------------------------------------------
 # CURRENT VALUES
 # --------------------------------------------------
