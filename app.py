@@ -40,6 +40,9 @@ def load_stock(symbol):
     history = IndicatorEngine(
         data["history"]
     ).calculate_all()
+    history = history.dropna(
+    subset=["Close"]
+    ).copy()
 
     return data, history, stock.symbol
 
@@ -202,10 +205,17 @@ sector = info.get(
     "Unknown"
 )
 
-market_cap = info.get(
-    "marketCap",
-    "N/A"
-)
+market_cap = info.get("marketCap")
+
+if market_cap:
+
+    market_cap = (
+        f"₹ {market_cap / 1e7:,.2f} Cr"
+    )
+
+else:
+
+    market_cap = "N/A"
 
 pe_ratio = info.get(
     "trailingPE",
@@ -253,34 +263,25 @@ with col3:
 
     if market_cap != "N/A":
 
-        st.metric(
-            "🏦 Market Cap",
-            f"₹ {market_cap:,.0f}"
-        )
+    st.metric(
+        "🏦 Market Cap",
+        f"₹ {market_cap:,.0f}"
+    )
 
-    else:
+else:
 
-        st.metric(
-            "🏦 Market Cap",
-            "N/A"
-        )
+    st.metric(
+        "🏦 Market Cap",
+        "N/A"
+    ) 
 
 
 with col4:
 
-    if pe_ratio != "N/A":
-
-        st.metric(
-            "📊 PE Ratio",
-            f"{pe_ratio:.2f}"
-        )
-
-    else:
-
-        st.metric(
-            "📊 PE Ratio",
-            "N/A"
-        )
+    st.metric(
+    "🏦 Market Cap",
+    market_cap
+)
 
 st.divider()
 
@@ -683,6 +684,7 @@ st.divider()
 st.subheader("📰 Latest Market News")
 
 news = data.get("news", [])
+st.write(news)
 
 if not news:
 
