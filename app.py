@@ -41,7 +41,7 @@ def load_stock(symbol):
         data["history"]
     ).calculate_all()
 
-    return stock, data, history
+    return data, history, stock.symbol
 
 # --------------------------------------------------
 # HEADER
@@ -142,9 +142,10 @@ try:
 
     with st.spinner("Loading Market Data..."):
 
-        stock, data, history = load_stock(
+        data, history, symbol = load_stock(
             ticker
         )
+        stock = StockFetcher(ticker)
 
         info = data["info"]
 
@@ -215,7 +216,7 @@ pe_ratio = info.get(
 # --------------------------------------------------
 
 st.subheader(
-    f"{company} ({stock.symbol})"
+    f"{company} ({symbol})"
 )
 
 st.caption(
@@ -638,7 +639,7 @@ try:
     ):
 
         report = ai.analyze(
-            stock.symbol,
+            symbol,
             info,
             history
         )
