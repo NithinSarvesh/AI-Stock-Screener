@@ -9,6 +9,10 @@ class IndicatorEngine:
     def __init__(self, dataframe: pd.DataFrame):
         self.df = dataframe.copy()
 
+    # --------------------------------------------------
+    # EMA
+    # --------------------------------------------------
+
     def calculate_ema(self):
 
         self.df["EMA20"] = ta.trend.EMAIndicator(
@@ -26,12 +30,20 @@ class IndicatorEngine:
             window=Config.LONG_EMA
         ).ema_indicator()
 
+    # --------------------------------------------------
+    # RSI
+    # --------------------------------------------------
+
     def calculate_rsi(self):
 
         self.df["RSI"] = ta.momentum.RSIIndicator(
             close=self.df["Close"],
             window=Config.RSI_PERIOD
         ).rsi()
+
+    # --------------------------------------------------
+    # MACD
+    # --------------------------------------------------
 
     def calculate_macd(self):
 
@@ -46,6 +58,10 @@ class IndicatorEngine:
         self.df["MACD_SIGNAL"] = macd.macd_signal()
         self.df["MACD_HISTOGRAM"] = macd.macd_diff()
 
+    # --------------------------------------------------
+    # Bollinger Bands
+    # --------------------------------------------------
+
     def calculate_bollinger(self):
 
         bb = ta.volatility.BollingerBands(
@@ -57,6 +73,10 @@ class IndicatorEngine:
         self.df["BB_MIDDLE"] = bb.bollinger_mavg()
         self.df["BB_LOWER"] = bb.bollinger_lband()
 
+    # --------------------------------------------------
+    # Volume Indicators
+    # --------------------------------------------------
+
     def calculate_volume(self):
 
         self.df["VWAP"] = ta.volume.VolumeWeightedAveragePrice(
@@ -65,6 +85,16 @@ class IndicatorEngine:
             close=self.df["Close"],
             volume=self.df["Volume"]
         ).volume_weighted_average_price()
+
+        self.df["AVG_VOLUME"] = (
+            self.df["Volume"]
+            .rolling(window=20)
+            .mean()
+        )
+
+    # --------------------------------------------------
+    # ATR
+    # --------------------------------------------------
 
     def calculate_atr(self):
 
@@ -76,6 +106,10 @@ class IndicatorEngine:
 
         self.df["ATR"] = atr.average_true_range()
 
+    # --------------------------------------------------
+    # ADX
+    # --------------------------------------------------
+
     def calculate_adx(self):
 
         adx = ta.trend.ADXIndicator(
@@ -86,6 +120,10 @@ class IndicatorEngine:
 
         self.df["ADX"] = adx.adx()
 
+    # --------------------------------------------------
+    # OBV
+    # --------------------------------------------------
+
     def calculate_obv(self):
 
         obv = ta.volume.OnBalanceVolumeIndicator(
@@ -95,6 +133,10 @@ class IndicatorEngine:
 
         self.df["OBV"] = obv.on_balance_volume()
 
+    # --------------------------------------------------
+    # Stochastic RSI
+    # --------------------------------------------------
+
     def calculate_stoch_rsi(self):
 
         stoch = ta.momentum.StochRSIIndicator(
@@ -102,6 +144,10 @@ class IndicatorEngine:
         )
 
         self.df["STOCH_RSI"] = stoch.stochrsi()
+
+    # --------------------------------------------------
+    # Calculate Everything
+    # --------------------------------------------------
 
     def calculate_all(self):
 

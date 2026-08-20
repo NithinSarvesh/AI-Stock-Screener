@@ -6,6 +6,7 @@ from stock_fetcher import StockFetcher
 from indicators import IndicatorEngine
 from charts import ChartBuilder
 from ai_analysis import AIAnalyzer
+from scoring import StockScorer
 
 
 # --------------------------------------------------
@@ -61,25 +62,34 @@ st.sidebar.markdown("---")
 
 st.sidebar.subheader("Quick Select")
 
+st.sidebar.subheader("Quick Select")
+
+popular = [
+    "RELIANCE",
+    "TCS",
+    "INFY",
+    "HDFCBANK",
+    "ICICIBANK",
+    "SBIN",
+    "LT",
+    "ITC",
+    "BHARTIARTL",
+    "TATAMOTORS"
+]
+
 quick = st.sidebar.selectbox(
     "Popular Stocks",
-    [
-        "RELIANCE",
-        "TCS",
-        "INFY",
-        "HDFCBANK",
-        "ICICIBANK",
-        "SBIN",
-        "LT",
-        "ITC",
-        "BHARTIARTL",
-        "TATAMOTORS"
-    ]
+    ["Select a stock..."] + popular
 )
 
-if quick != ticker:
-    ticker = quick
+if quick != "Select a stock...":
 
+    if st.sidebar.button(
+        "Load Selected Stock",
+        use_container_width=True
+    ):
+
+        ticker = quick
 
 st.sidebar.markdown("---")
 
@@ -135,6 +145,7 @@ try:
         ).calculate_all()
 
         info = data["info"]
+        usd_inr = data["usd_inr"]
 
 except Exception as e:
 
@@ -147,9 +158,23 @@ except Exception as e:
 # CURRENT VALUES
 # --------------------------------------------------
 
+history = history.dropna(
+    subset=["Close"]
+)
+
+if history.empty:
+
+    st.error(
+        "No valid price data available."
+    )
+
+    st.stop()
+
 latest = history.iloc[-1]
 
 previous = history.iloc[-2]
+
+score = StockScorer(latest).calculate()
 
 current_price = latest["Close"]
 
@@ -170,10 +195,15 @@ sector = info.get(
     "Unknown"
 )
 
-market_cap = info.get(
-    "marketCap",
-    "N/A"
-)
+market_cap = info.get("marketCap")
+
+if market_cap:
+
+    market_cap_display = f"₹ {market_cap / 1e7:,.2f} Cr"
+
+else:
+
+    market_cap_display = "N/A"
 
 pe_ratio = info.get(
     "trailingPE",
@@ -202,36 +232,48 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
 
-    st.metric(
-        "💰 Current Price",
-        f"₹ {current_price:,.2f}"
-    )
+    # Indian Stocks
+    if stock.symbol.endswith((".NS", ".BO")):
 
+        st.metric(
+            "💰 Current Price",
+            f"₹ {current_price:,.2f}"
+        )
+
+    # US Stocks
+    else:
+
+        inr_price = current_price * usd_inr
+
+        st.metric(
+            "💰 Current Price",
+            f"$ {current_price:,.2f}"
+        )
+
+        st.caption(
+            f"≈ ₹ {inr_price:,.2f}"
+        )
 
 with col2:
 
+    currency = "₹"
+
+    if not stock.symbol.endswith((".NS", ".BO")):
+        currency = "$"
+
     st.metric(
         "📈 Today's Change",
-        f"{price_change:.2f}",
+        f"{currency} {price_change:.2f}",
         f"{price_percent:.2f}%"
     )
 
 
 with col3:
 
-    if market_cap != "N/A":
-
-        st.metric(
-            "🏦 Market Cap",
-            f"₹ {market_cap:,.0f}"
-        )
-
-    else:
-
-        st.metric(
-            "🏦 Market Cap",
-            "N/A"
-        )
+    st.metric(
+        "🏦 Market Cap",
+        market_cap_display
+    )
 
 
 with col4:
@@ -352,6 +394,37 @@ with i4:
 
 st.divider()
 
+# --------------------------------------------------
+# AI SCORE
+# --------------------------------------------------
+
+st.subheader("🧠 AI Trading Score")
+
+c1, c2 = st.columns(2)
+
+with c1:
+
+    st.metric(
+        "Overall Score",
+        f"{score['score']} / 100"
+    )
+
+with c2:
+
+    st.metric(
+        "Recommendation",
+        score["signal"]
+    )
+
+st.progress(score["score"] / 100)
+
+st.markdown("### Why?")
+
+for reason in score["reasons"]:
+
+    st.write(reason)
+
+st.divider()
 
 # --------------------------------------------------
 # QUICK MARKET SIGNALS
