@@ -173,9 +173,9 @@ if history.empty:
 
 latest = history.iloc[-1]
 
-previous = history.iloc[-2]
-
 score = StockScorer(latest).calculate()
+
+previous = history.iloc[-2]
 
 trade = TradeSetup(latest).calculate()
 
@@ -204,11 +204,30 @@ market_cap = info.get("marketCap")
 
 if market_cap:
 
-    market_cap_display = f"₹ {market_cap / 1e7:,.2f} Cr"
+    if stock.symbol.endswith((".NS", ".BO")):
+
+        market_cap_display = (
+            f"₹ {market_cap/1e7:,.2f} Cr"
+        )
+
+    else:
+
+        if market_cap >= 1e12:
+
+            market_cap_display = (
+                f"$ {market_cap/1e12:,.2f} T"
+            )
+
+        else:
+
+            market_cap_display = (
+                f"$ {market_cap/1e9:,.2f} B"
+            )
 
 else:
 
     market_cap_display = "N/A"
+
 
 pe_ratio = info.get(
     "trailingPE",
@@ -437,33 +456,38 @@ c1, c2, c3 = st.columns(3)
 
 with c1:
 
+    currency = "₹"
+
+    if not stock.symbol.endswith((".NS", ".BO")):
+        currency = "$"
+
     st.metric(
         "Entry",
-        f"₹ {trade['entry']:.2f}"
+        f"{currency} {trade['entry']:.2f}"
     )
 
     st.metric(
         "Stop Loss",
-        f"₹ {trade['stoploss']:.2f}"
+        f"{currency} {trade['stoploss']:.2f}"
     )
 
 with c2:
 
     st.metric(
         "Target 1",
-        f"₹ {trade['target1']:.2f}"
+        f"{currency} {trade['target1']:.2f}"
     )
 
     st.metric(
         "Target 2",
-        f"₹ {trade['target2']:.2f}"
+        f"{currency} {trade['target2']:.2f}"
     )
 
 with c3:
 
     st.metric(
         "Target 3",
-        f"₹ {trade['target3']:.2f}"
+        f"{currency} {trade['target3']:.2f}"
     )
 
     st.metric(
@@ -570,6 +594,11 @@ support = levels["support"]
 
 resistance = levels["resistance"]
 
+currency = "₹"
+
+if not stock.symbol.endswith((".NS", ".BO")):
+    currency = "$"
+
 c1, c2 = st.columns(2)
 
 with c1:
@@ -578,7 +607,7 @@ with c1:
         f"""
 Nearest Support
 
-₹ {support:.2f}
+{currency} {support:.2f}
 """
     )
 
@@ -588,9 +617,10 @@ with c2:
         f"""
 Nearest Resistance
 
-₹ {resistance:.2f}
+{currency} {resistance:.2f}
 """
     )
+
 
 st.divider()
 
@@ -679,7 +709,7 @@ with right:
 
     st.write(
         "**Market Cap:**",
-        market_cap
+        market_cap_display
     )
 
     st.write(
@@ -894,5 +924,11 @@ with footer3:
 st.markdown("---")
 
 st.caption(
-    "AI Stock Trading Assistant • Version 1.0"
+"""
+Made by Nithin Sarvesh
+
+Version 1.2
+
+Powered by Yahoo Finance • Groq • Plotly
+"""
 )
