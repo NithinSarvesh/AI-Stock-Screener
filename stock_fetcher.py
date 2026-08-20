@@ -65,7 +65,8 @@ class StockFetcher:
         try:
 
             return self.ticker.history(
-                period=Config.HISTORY_PERIOD
+                period="1y",
+                auto_adjust=True
             )
 
         except Exception:

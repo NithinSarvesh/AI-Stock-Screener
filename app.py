@@ -142,6 +142,11 @@ try:
         history = IndicatorEngine(
             data["history"]
         ).calculate_all()
+        if len(history) < 20:
+            st.error(
+                "Not enough historical data available for this stock. Please try again in a few moments."
+            )
+            st.stop()
 
         info = data["info"]
         usd_inr = data["usd_inr"]
