@@ -40,6 +40,15 @@ def load_stock(symbol):
     history = IndicatorEngine(
         data["history"]
     ).calculate_all()
+    history = (
+    history
+    .dropna(subset=["Close"])
+    .copy()
+    )
+    history = history[history["Close"].notna()]
+    history = history.reset_index(drop=False)
+latest = history.iloc[-1]
+previous = history.iloc[-2]
     history = history.dropna(
     subset=["Close"]
     ).copy()
@@ -151,6 +160,7 @@ try:
         stock = StockFetcher(ticker)
 
         info = data["info"]
+        usd_inr = data["usd_inr"]
 
 except Exception as e:
 
@@ -207,11 +217,13 @@ sector = info.get(
 
 market_cap = info.get("marketCap")
 
+market_cap = info.get("marketCap")
+
 if market_cap:
 
-    market_cap = (
-        f"₹ {market_cap / 1e7:,.2f} Cr"
-    )
+    market_cap = market_cap / 1e7
+
+    market_cap = f"₹ {market_cap:,.2f} Cr"
 
 else:
 
@@ -244,10 +256,25 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
 
-    st.metric(
-        "💰 Current Price",
-        f"₹ {current_price:,.2f}"
-    )
+    if symbol.endswith((".NS", ".BO")):
+
+        st.metric(
+            "💰 Current Price",
+            f"₹ {current_price:,.2f}"
+        )
+
+    else:
+
+        inr_price = current_price * usd_inr
+
+        st.metric(
+            "💰 Current Price",
+            f"$ {current_price:,.2f}"
+        )
+
+        st.caption(
+            f"≈ ₹ {inr_price:,.2f}"
+        )
 
 
 with col2:
@@ -261,19 +288,10 @@ with col2:
 
 with col3:
 
-    if market_cap != "N/A":
-
     st.metric(
-        "🏦 Market Cap",
-        f"₹ {market_cap:,.0f}"
-    )
-
-else:
-
-    st.metric(
-        "🏦 Market Cap",
-        "N/A"
-    ) 
+    "🏦 Market Cap",
+    market_cap
+)
 
 
 with col4:
