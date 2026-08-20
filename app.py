@@ -21,7 +21,7 @@ st.set_page_config(
 
 
 # --------------------------------------------------
-# CACHE
+# LOAD AI ONLY ONCE
 # --------------------------------------------------
 
 @st.cache_resource
@@ -30,22 +30,6 @@ def get_ai():
     return AIAnalyzer()
 
 
-@st.cache_data(ttl=300)
-def load_stock(symbol):
-
-    stock = StockFetcher(symbol)
-
-    data = stock.fetch_all()
-
-    history = IndicatorEngine(
-        data["history"]
-    ).calculate_all()
-
-    history = history.dropna(
-        subset=["Close"]
-    ).copy()
-
-    return data, history
 # --------------------------------------------------
 # HEADER
 # --------------------------------------------------
@@ -65,16 +49,13 @@ st.divider()
 
 st.sidebar.title("📈 Stock Search")
 
-with st.sidebar.form("search_form"):
+ticker = st.sidebar.text_input(
+    "Enter Stock Symbol",
+    value="RELIANCE"
+)
 
-    ticker = st.text_input(
-        "Enter Stock Symbol",
-        value="RELIANCE"
-    ).strip().upper()
+ticker = ticker.strip().upper()
 
-    search_clicked = st.form_submit_button(
-        "🔍 Search"
-    )
 
 st.sidebar.markdown("---")
 
@@ -96,16 +77,16 @@ quick = st.sidebar.selectbox(
     ]
 )
 
-if st.sidebar.button("Use Selected Stock"):
-
+if quick != ticker:
     ticker = quick
+
+
 st.sidebar.markdown("---")
 
 if st.sidebar.button(
     "🔄 Refresh",
     use_container_width=True
 ):
-    st.cache_data.clear()
 
     st.rerun()
 
@@ -145,42 +126,23 @@ try:
 
     with st.spinner("Loading Market Data..."):
 
-        data, history, symbol = load_stock(
-            ticker
-        )
         stock = StockFetcher(ticker)
-        stock.fetch_all()
 
-        symbol = stock.symbol
+        data = stock.fetch_all()
+
+        history = IndicatorEngine(
+            data["history"]
+        ).calculate_all()
+
         info = data["info"]
-        usd_inr = data["usd_inr"]
 
 except Exception as e:
 
-    message = str(e)
-
-    if (
-        "Too Many Requests" in message
-        or
-        "429" in message
-    ):
-
-        st.error(
-            """
-🚫 Yahoo Finance Rate Limit
-
-Too many requests were sent.
-
-Please wait 30–60 seconds
-and try again.
-"""
-        )
-
-    else:
-
-        st.error(message)
+    st.error(str(e))
 
     st.stop()
+
+
 # --------------------------------------------------
 # CURRENT VALUES
 # --------------------------------------------------
@@ -208,18 +170,10 @@ sector = info.get(
     "Unknown"
 )
 
-market_cap = info.get("marketCap")
-
-
-if market_cap:
-
-    market_cap = market_cap / 1e7
-
-    market_cap = f"₹ {market_cap:,.2f} Cr"
-
-else:
-
-    market_cap = "N/A"
+market_cap = info.get(
+    "marketCap",
+    "N/A"
+)
 
 pe_ratio = info.get(
     "trailingPE",
@@ -230,7 +184,7 @@ pe_ratio = info.get(
 # --------------------------------------------------
 
 st.subheader(
-    f"{company} ({symbol})"
+    f"{company} ({stock.symbol})"
 )
 
 st.caption(
@@ -248,25 +202,10 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
 
-    if symbol.endswith((".NS", ".BO")):
-
-        st.metric(
-            "💰 Current Price",
-            f"₹ {current_price:,.2f}"
-        )
-
-    else:
-
-        inr_price = current_price * usd_inr
-
-        st.metric(
-            "💰 Current Price",
-            f"$ {current_price:,.2f}"
-        )
-
-        st.caption(
-            f"≈ ₹ {inr_price:,.2f}"
-        )
+    st.metric(
+        "💰 Current Price",
+        f"₹ {current_price:,.2f}"
+    )
 
 
 with col2:
@@ -280,18 +219,36 @@ with col2:
 
 with col3:
 
-    st.metric(
-    "🏦 Market Cap",
-    market_cap
-)
+    if market_cap != "N/A":
+
+        st.metric(
+            "🏦 Market Cap",
+            f"₹ {market_cap:,.0f}"
+        )
+
+    else:
+
+        st.metric(
+            "🏦 Market Cap",
+            "N/A"
+        )
 
 
 with col4:
 
-    st.metric(
-        "📊 PE Ratio",
-        pe_ratio
-    )
+    if pe_ratio != "N/A":
+
+        st.metric(
+            "📊 PE Ratio",
+            f"{pe_ratio:.2f}"
+        )
+
+    else:
+
+        st.metric(
+            "📊 PE Ratio",
+            "N/A"
+        )
 
 st.divider()
 
@@ -650,7 +607,7 @@ try:
     ):
 
         report = ai.analyze(
-            symbol,
+            stock.symbol,
             info,
             history
         )
@@ -694,7 +651,6 @@ st.divider()
 st.subheader("📰 Latest Market News")
 
 news = data.get("news", [])
-st.write(news)
 
 if not news:
 
