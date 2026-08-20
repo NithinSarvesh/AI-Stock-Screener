@@ -1,13 +1,14 @@
 class TradeSetup:
 
-    def __init__(self, latest):
+    def __init__(self, latest, support, resistance):
 
         self.latest = latest
+        self.support = support
+        self.resistance = resistance
 
     def calculate(self):
 
         close = self.latest["Close"]
-        atr = self.latest["ATR"]
 
         # -------------------------
         # Detect Trend
@@ -18,34 +19,42 @@ class TradeSetup:
             direction = "🟢 BUY"
 
             entry = close
-            stoploss = close - (1.5 * atr)
 
-            target1 = close + (1.0 * atr)
-            target2 = close + (2.0 * atr)
-            target3 = close + (3.0 * atr)
+            stoploss = self.support
+
+            target1 = entry + (self.resistance - entry) * 0.5
+
+            target2 = self.resistance
+
+            target3 = self.resistance + (
+                self.resistance - self.support
+            ) * 0.5
 
         else:
 
             direction = "🔴 SELL"
 
             entry = close
-            stoploss = close + (1.5 * atr)
 
-            target1 = close - (1.0 * atr)
-            target2 = close - (2.0 * atr)
-            target3 = close - (3.0 * atr)
+            stoploss = self.resistance
+
+            target1 = entry - (entry - self.support) * 0.5
+
+            target2 = self.support
+
+            target3 = self.support - (
+                self.resistance - self.support
+            ) * 0.5
 
         # -------------------------
         # Risk Reward
         # -------------------------
 
         risk = abs(entry - stoploss)
+
         reward = abs(target2 - entry)
 
-        if risk == 0:
-            rr = 0
-        else:
-            rr = reward / risk
+        rr = reward / risk if risk else 0
 
         # -------------------------
         # Risk Level
@@ -55,7 +64,7 @@ class TradeSetup:
 
             risk_level = "🟢 Low"
 
-        elif rr >= 1.5:
+        elif rr >= 1:
 
             risk_level = "🟡 Medium"
 

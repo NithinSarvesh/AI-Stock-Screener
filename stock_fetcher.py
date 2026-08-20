@@ -1,4 +1,5 @@
 import yfinance as yf
+
 from config import Config
 
 
@@ -12,7 +13,7 @@ class StockFetcher:
         self.symbol = None
         self.ticker = None
 
-        # If user already entered an exchange
+        # If user already entered exchange
         if "." in symbol:
 
             self.symbols_to_try = [symbol]
@@ -21,13 +22,9 @@ class StockFetcher:
 
             # Try NSE → BSE → US
             self.symbols_to_try = [
-
                 symbol + ".NS",
-
                 symbol + ".BO",
-
                 symbol
-
             ]
 
     def _connect(self):
@@ -58,6 +55,10 @@ class StockFetcher:
             f"Stock '{self.original_symbol}' not found on NSE, BSE or US markets."
         )
 
+    # --------------------------------------------------
+    # Historical Data
+    # --------------------------------------------------
+
     def get_history(self):
 
         self._connect()
@@ -75,30 +76,46 @@ class StockFetcher:
                 "Unable to fetch historical market data."
             )
 
+    # --------------------------------------------------
+    # Company Information
+    # --------------------------------------------------
+
     def get_info(self):
 
         self._connect()
 
         try:
-
-            return self.ticker.info
-
+            info = self.ticker.info
         except Exception:
+            info = {}
 
-            return {}
+        try:
+            fast_info = self.ticker.fast_info
+        except Exception:
+            fast_info = {}
+
+        return {
+            "info": info,
+            "fast_info": fast_info
+        }
+
+    # --------------------------------------------------
+    # News
+    # --------------------------------------------------
 
     def get_news(self):
 
         self._connect()
 
         try:
-
             return self.ticker.news
 
         except Exception:
-
             return []
 
+    # --------------------------------------------------
+    # USD / INR
+    # --------------------------------------------------
 
     def get_usd_inr_rate(self):
 
@@ -114,14 +131,21 @@ class StockFetcher:
 
             return 85.0
 
+    # --------------------------------------------------
+    # Fetch Everything
+    # --------------------------------------------------
 
     def fetch_all(self):
+
+        company = self.get_info()
 
         return {
 
             "history": self.get_history(),
 
-            "info": self.get_info(),
+            "info": company["info"],
+
+            "fast_info": company["fast_info"],
 
             "news": self.get_news(),
 

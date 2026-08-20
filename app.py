@@ -149,6 +149,7 @@ try:
             st.stop()
 
         info = data["info"]
+        fast_info = data["fast_info"]
         usd_inr = data["usd_inr"]
 
 except Exception as e:
@@ -180,11 +181,16 @@ score = StockScorer(latest).calculate()
 
 previous = history.iloc[-2]
 
-trade = TradeSetup(latest).calculate()
+levels = SupportResistance(history).calculate()
+
+trade = TradeSetup(
+    latest,
+    levels["support"],
+    levels["resistance"]
+).calculate()
 
 st.success(f"Direction : {trade['direction']}")
 
-levels = SupportResistance(history).calculate()
 
 current_price = latest["Close"]
 
@@ -205,7 +211,10 @@ sector = info.get(
     "Unknown"
 )
 
-market_cap = info.get("marketCap")
+market_cap = (
+    info.get("marketCap")
+    or fast_info.get("market_cap")
+)
 
 if market_cap:
 
