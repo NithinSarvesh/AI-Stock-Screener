@@ -149,7 +149,9 @@ try:
             ticker
         )
         stock = StockFetcher(ticker)
+        stock.fetch_all()
 
+        symbol = stock.symbol
         info = data["info"]
         usd_inr = data["usd_inr"]
 
@@ -208,7 +210,6 @@ sector = info.get(
 
 market_cap = info.get("marketCap")
 
-market_cap = info.get("marketCap")
 
 if market_cap:
 
@@ -288,9 +289,9 @@ with col3:
 with col4:
 
     st.metric(
-    "🏦 Market Cap",
-    market_cap
-)
+        "📊 PE Ratio",
+        pe_ratio
+    )
 
 st.divider()
 
