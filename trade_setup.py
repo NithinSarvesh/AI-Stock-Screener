@@ -9,21 +9,47 @@ class TradeSetup:
         close = self.latest["Close"]
         atr = self.latest["ATR"]
 
-        entry = close
+        # -------------------------
+        # Detect Trend
+        # -------------------------
 
-        stoploss = close - (1.5 * atr)
+        if self.latest["EMA20"] > self.latest["EMA50"]:
 
-        target1 = close + (1.0 * atr)
+            direction = "🟢 BUY"
 
-        target2 = close + (2.0 * atr)
+            entry = close
+            stoploss = close - (1.5 * atr)
 
-        target3 = close + (3.0 * atr)
+            target1 = close + (1.0 * atr)
+            target2 = close + (2.0 * atr)
+            target3 = close + (3.0 * atr)
 
-        risk = entry - stoploss
+        else:
 
-        reward = target2 - entry
+            direction = "🔴 SELL"
 
-        rr = reward / risk if risk else 0
+            entry = close
+            stoploss = close + (1.5 * atr)
+
+            target1 = close - (1.0 * atr)
+            target2 = close - (2.0 * atr)
+            target3 = close - (3.0 * atr)
+
+        # -------------------------
+        # Risk Reward
+        # -------------------------
+
+        risk = abs(entry - stoploss)
+        reward = abs(target2 - entry)
+
+        if risk == 0:
+            rr = 0
+        else:
+            rr = reward / risk
+
+        # -------------------------
+        # Risk Level
+        # -------------------------
 
         if rr >= 2:
 
@@ -37,7 +63,13 @@ class TradeSetup:
 
             risk_level = "🔴 High"
 
+        # -------------------------
+        # Return
+        # -------------------------
+
         return {
+
+            "direction": direction,
 
             "entry": entry,
 

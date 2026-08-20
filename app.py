@@ -63,8 +63,6 @@ st.sidebar.markdown("---")
 
 st.sidebar.subheader("Quick Select")
 
-st.sidebar.subheader("Quick Select")
-
 popular = [
     "RELIANCE",
     "TCS",
@@ -178,6 +176,8 @@ score = StockScorer(latest).calculate()
 previous = history.iloc[-2]
 
 trade = TradeSetup(latest).calculate()
+
+st.success(f"Direction : {trade['direction']}")
 
 levels = SupportResistance(history).calculate()
 
