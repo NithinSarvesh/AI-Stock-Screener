@@ -1,12 +1,13 @@
 import streamlit as st
 from datetime import datetime
-
+from trade_setup import TradeSetup
 from config import Config
 from stock_fetcher import StockFetcher
 from indicators import IndicatorEngine
 from charts import ChartBuilder
 from ai_analysis import AIAnalyzer
 from scoring import StockScorer
+from support_resistance import SupportResistance
 
 
 # --------------------------------------------------
@@ -175,6 +176,10 @@ latest = history.iloc[-1]
 previous = history.iloc[-2]
 
 score = StockScorer(latest).calculate()
+
+trade = TradeSetup(latest).calculate()
+
+levels = SupportResistance(history).calculate()
 
 current_price = latest["Close"]
 
@@ -426,6 +431,53 @@ for reason in score["reasons"]:
 
 st.divider()
 
+st.subheader("🎯 Trade Setup")
+
+c1, c2, c3 = st.columns(3)
+
+with c1:
+
+    st.metric(
+        "Entry",
+        f"₹ {trade['entry']:.2f}"
+    )
+
+    st.metric(
+        "Stop Loss",
+        f"₹ {trade['stoploss']:.2f}"
+    )
+
+with c2:
+
+    st.metric(
+        "Target 1",
+        f"₹ {trade['target1']:.2f}"
+    )
+
+    st.metric(
+        "Target 2",
+        f"₹ {trade['target2']:.2f}"
+    )
+
+with c3:
+
+    st.metric(
+        "Target 3",
+        f"₹ {trade['target3']:.2f}"
+    )
+
+    st.metric(
+        "Risk",
+        trade["risk"]
+    )
+
+st.metric(
+    "Risk : Reward",
+    f"1 : {trade['rr']:.2f}"
+)
+
+st.divider()
+
 # --------------------------------------------------
 # QUICK MARKET SIGNALS
 # --------------------------------------------------
@@ -514,12 +566,9 @@ st.divider()
 
 st.subheader("🎯 Key Technical Levels")
 
-support = min(
-    latest["EMA20"],
-    latest["EMA50"]
-)
+support = levels["support"]
 
-resistance = latest["BB_UPPER"]
+resistance = levels["resistance"]
 
 c1, c2 = st.columns(2)
 
