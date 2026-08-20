@@ -8,6 +8,7 @@ from charts import ChartBuilder
 from ai_analysis import AIAnalyzer
 from scoring import StockScorer
 from support_resistance import SupportResistance
+from candlestick import CandlePattern
 
 
 # --------------------------------------------------
@@ -182,6 +183,7 @@ score = StockScorer(latest).calculate()
 previous = history.iloc[-2]
 
 levels = SupportResistance(history).calculate()
+pattern = CandlePattern(history).detect()
 
 trade = TradeSetup(
     latest,
@@ -435,6 +437,32 @@ st.divider()
 # --------------------------------------------------
 # AI SCORE
 # --------------------------------------------------
+st.subheader("🕯 Candlestick Pattern")
+
+c1, c2, c3 = st.columns(3)
+
+with c1:
+
+    st.metric(
+        "Pattern",
+        pattern["pattern"]
+    )
+
+with c2:
+
+    st.metric(
+        "Confidence",
+        f"{pattern['confidence']}%"
+    )
+
+with c3:
+
+    st.metric(
+        "Meaning",
+        pattern["meaning"]
+    )
+
+st.divider()
 
 st.subheader("🧠 AI Trading Score")
 
