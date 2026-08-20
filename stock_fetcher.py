@@ -97,19 +97,22 @@ class StockFetcher:
         except Exception:
 
             return []
+
+
     def get_usd_inr_rate(self):
 
-    try:
+        try:
 
-        usd = yf.Ticker("USDINR=X")
+            usd = yf.Ticker("USDINR=X")
 
-        history = usd.history(period="1d")
+            history = usd.history(period="1d")
 
-        return float(history["Close"].iloc[-1])
+            return float(history["Close"].iloc[-1])
 
-    except Exception:
+        except Exception:
 
-        return 85.0
+            return 85.0
+
 
     def fetch_all(self):
 
@@ -119,8 +122,8 @@ class StockFetcher:
 
             "info": self.get_info(),
 
-            "news": self.get_news()
-            
+            "news": self.get_news(),
+
             "usd_inr": self.get_usd_inr_rate()
 
         }
