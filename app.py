@@ -40,21 +40,12 @@ def load_stock(symbol):
     history = IndicatorEngine(
         data["history"]
     ).calculate_all()
-    history = (
-    history
-    .dropna(subset=["Close"])
-    .copy()
-    )
-    history = history[history["Close"].notna()]
-    history = history.reset_index(drop=False)
-latest = history.iloc[-1]
-previous = history.iloc[-2]
+
     history = history.dropna(
-    subset=["Close"]
+        subset=["Close"]
     ).copy()
 
-    return data, history, stock.symbol
-
+    return data, history
 # --------------------------------------------------
 # HEADER
 # --------------------------------------------------
