@@ -1,976 +1,325 @@
 import streamlit as st
-from datetime import datetime
-from trade_setup import TradeSetup
-from config import Config
-from stock_fetcher import StockFetcher
-from indicators import IndicatorEngine
-from charts import ChartBuilder
-from ai_analysis import AIAnalyzer
-from scoring import StockScorer
-from support_resistance import SupportResistance
-from candlestick import CandlePattern
 
 
-# --------------------------------------------------
+# ============================================================
 # PAGE CONFIG
-# --------------------------------------------------
+# ============================================================
 
 st.set_page_config(
-    page_title="🇮🇳 AI Stock Trading Assistant",
+    page_title="AI Stock Trading Assistant",
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 
-# --------------------------------------------------
-# LOAD AI ONLY ONCE
-# --------------------------------------------------
+# ============================================================
+# GLOBAL CSS
+# ============================================================
 
-@st.cache_resource
-def get_ai():
+st.markdown(
+    """
+    <style>
 
-    return AIAnalyzer()
+    .main-title {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .subtitle {
+        font-size: 17px;
+        opacity: 0.75;
+        margin-top: 4px;
+    }
+
+    .feature-card {
+        padding: 22px;
+        border-radius: 12px;
+        border: 1px solid rgba(128, 128, 128, 0.25);
+        min-height: 180px;
+    }
+
+    .status-card {
+        padding: 18px;
+        border-radius: 12px;
+        border: 1px solid rgba(128, 128, 128, 0.25);
+        text-align: center;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
-# --------------------------------------------------
+# ============================================================
 # HEADER
-# --------------------------------------------------
+# ============================================================
 
-st.title("🇮🇳 AI Stock Trading Assistant")
+st.markdown(
+    '<div class="main-title">📈 AI Stock Trading Assistant</div>',
+    unsafe_allow_html=True,
+)
 
-st.caption(
-    "Powered by Groq • Yahoo Finance • Plotly • Technical Analysis"
+st.markdown(
+    """
+    <div class="subtitle">
+    Quantitative stock analysis • Technical signals • Risk management •
+    Backtesting • AI-powered explanations
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 st.divider()
 
 
-# --------------------------------------------------
-# SIDEBAR
-# --------------------------------------------------
+# ============================================================
+# WELCOME
+# ============================================================
 
-st.sidebar.title("📈 Stock Search")
+st.header("Welcome")
 
-ticker = st.sidebar.text_input(
-    "Enter Stock Symbol",
-    value="RELIANCE"
-)
+st.write(
+    """
+    Stock Assistant is being developed as a complete market-analysis
+    and trading-research platform.
 
-ticker = ticker.strip().upper()
-
-
-st.sidebar.markdown("---")
-
-st.sidebar.subheader("Quick Select")
-
-popular = [
-    "RELIANCE",
-    "TCS",
-    "INFY",
-    "HDFCBANK",
-    "ICICIBANK",
-    "SBIN",
-    "LT",
-    "ITC",
-    "BHARTIARTL",
-    "TATAMOTORS"
-]
-
-quick = st.sidebar.selectbox(
-    "Popular Stocks",
-    ["Select a stock..."] + popular
-)
-
-if quick != "Select a stock...":
-
-    if st.sidebar.button(
-        "Load Selected Stock",
-        use_container_width=True
-    ):
-
-        ticker = quick
-
-st.sidebar.markdown("---")
-
-if st.sidebar.button(
-    "🔄 Refresh",
-    use_container_width=True
-):
-
-    st.rerun()
-
-
-st.sidebar.markdown("---")
-
-st.sidebar.info(
-"""
-Supported Markets
-
-✅ NSE
-
-✅ BSE
-
-✅ US
-
-Examples
-
-RELIANCE
-
-TCS
-
-INFY
-
-AAPL
-
-TSLA
-"""
+    The application combines market data, technical indicators,
+    quantitative scoring, trade setups, risk management, screening,
+    portfolio analysis, backtesting and AI-assisted explanations.
+    """
 )
 
 
-# --------------------------------------------------
-# LOAD STOCK
-# --------------------------------------------------
+# ============================================================
+# CURRENT VERSION
+# ============================================================
 
-try:
+st.subheader("🚀 Version 1.3")
 
-    with st.spinner("Loading Market Data..."):
+c1, c2, c3, c4 = st.columns(4)
 
-        stock = StockFetcher(ticker)
-
-        data = stock.fetch_all()
-
-        history = IndicatorEngine(
-            data["history"]
-        ).calculate_all()
-        if len(history) < 20:
-            st.error(
-                "Not enough historical data available for this stock. Please try again in a few moments."
-            )
-            st.stop()
-
-        info = data["info"]
-        fast_info = data["fast_info"]
-        usd_inr = data["usd_inr"]
-
-except Exception as e:
-
-    st.error(str(e))
-
-    st.stop()
-
-
-# --------------------------------------------------
-# CURRENT VALUES
-# --------------------------------------------------
-
-history = history.dropna(
-    subset=["Close"]
-)
-
-if history.empty:
-
-    st.error(
-        "No valid price data available."
+with c1:
+    st.markdown(
+        """
+        <div class="status-card">
+        <h3>📊 Dashboard</h3>
+        <p>Technical stock analysis</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-    st.stop()
+with c2:
+    st.markdown(
+        """
+        <div class="status-card">
+        <h3>🔎 Screener</h3>
+        <p>Market-wide stock scanning</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-latest = history.iloc[-1]
+with c3:
+    st.markdown(
+        """
+        <div class="status-card">
+        <h3>💼 Portfolio</h3>
+        <p>Holdings and risk analysis</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-score = StockScorer(latest).calculate()
+with c4:
+    st.markdown(
+        """
+        <div class="status-card">
+        <h3>🧪 Backtesting</h3>
+        <p>Historical strategy testing</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-previous = history.iloc[-2]
-
-levels = SupportResistance(history).calculate()
-pattern = CandlePattern(history).detect()
-
-trade = TradeSetup(
-    latest,
-    levels["support"],
-    levels["resistance"]
-).calculate()
-
-st.success(f"Direction : {trade['direction']}")
-
-
-current_price = latest["Close"]
-
-price_change = current_price - previous["Close"]
-
-price_percent = (
-    price_change /
-    previous["Close"]
-) * 100
-
-company = info.get(
-    "longName",
-    ticker
-)
-
-sector = info.get(
-    "sector",
-    "Unknown"
-)
-
-market_cap = (
-    info.get("marketCap")
-    or fast_info.get("market_cap")
-)
-
-if market_cap:
-
-    if stock.symbol.endswith((".NS", ".BO")):
-
-        market_cap_display = (
-            f"₹ {market_cap/1e7:,.2f} Cr"
-        )
-
-    else:
-
-        if market_cap >= 1e12:
-
-            market_cap_display = (
-                f"$ {market_cap/1e12:,.2f} T"
-            )
-
-        else:
-
-            market_cap_display = (
-                f"$ {market_cap/1e9:,.2f} B"
-            )
-
-else:
-
-    market_cap_display = "N/A"
-
-
-pe_ratio = info.get(
-    "trailingPE",
-    "N/A"
-)
-# --------------------------------------------------
-# COMPANY HEADER
-# --------------------------------------------------
-
-st.subheader(
-    f"{company} ({stock.symbol})"
-)
-
-st.caption(
-    f"Sector : {sector}"
-)
 
 st.divider()
 
 
-# --------------------------------------------------
-# METRICS
-# --------------------------------------------------
+# ============================================================
+# PLATFORM MODULES
+# ============================================================
 
-col1, col2, col3, col4 = st.columns(4)
+st.header("🧠 Platform Modules")
+
+col1, col2, col3 = st.columns(3)
 
 with col1:
 
-    # Indian Stocks
-    if stock.symbol.endswith((".NS", ".BO")):
+    st.markdown(
+        """
+        <div class="feature-card">
 
-        st.metric(
-            "💰 Current Price",
-            f"₹ {current_price:,.2f}"
-        )
+        ### 📊 Technical Analysis
 
-    # US Stocks
-    else:
+        Analyze:
 
-        inr_price = current_price * usd_inr
+        - EMA 20 / 50 / 200
+        - RSI
+        - MACD
+        - Bollinger Bands
+        - VWAP
+        - ATR
+        - ADX
+        - OBV
+        - Stochastic RSI
+        - Candlestick patterns
+        - Support & resistance
 
-        st.metric(
-            "💰 Current Price",
-            f"$ {current_price:,.2f}"
-        )
-
-        st.caption(
-            f"≈ ₹ {inr_price:,.2f}"
-        )
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with col2:
 
-    currency = "₹"
+    st.markdown(
+        """
+        <div class="feature-card">
 
-    if not stock.symbol.endswith((".NS", ".BO")):
-        currency = "$"
+        ### 🎯 Signal & Risk Engine
 
-    st.metric(
-        "📈 Today's Change",
-        f"{currency} {price_change:.2f}",
-        f"{price_percent:.2f}%"
+        Future modules will combine:
+
+        - Trend
+        - Momentum
+        - Volume
+        - Market structure
+        - Volatility
+        - Breakouts
+        - Divergences
+        - Position sizing
+        - Risk/reward
+
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-
 
 with col3:
 
-    st.metric(
-        "🏦 Market Cap",
-        market_cap_display
+    st.markdown(
+        """
+        <div class="feature-card">
+
+        ### 🤖 AI Layer
+
+        The AI layer will eventually provide:
+
+        - Signal explanations
+        - Market summaries
+        - News interpretation
+        - Stock comparison
+        - Trade-plan explanations
+        - Portfolio analysis
+        - Natural-language queries
+
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-
-with col4:
-
-    if pe_ratio != "N/A":
-
-        st.metric(
-            "📊 PE Ratio",
-            f"{pe_ratio:.2f}"
-        )
-
-    else:
-
-        st.metric(
-            "📊 PE Ratio",
-            "N/A"
-        )
 
 st.divider()
 
 
-# --------------------------------------------------
-# PRICE CHART
-# --------------------------------------------------
+# ============================================================
+# DEVELOPMENT ROADMAP
+# ============================================================
 
-st.subheader("📈 Technical Chart")
+st.header("🛠️ Development Roadmap")
 
-chart = ChartBuilder(history)
+roadmap = [
+    ("Phase 1", "Architecture & Dashboard migration", "🟢"),
+    ("Phase 2", "Signal & Risk Engine", "🟡"),
+    ("Phase 3", "Market Screener", "⚪"),
+    ("Phase 4", "Breakout & Divergence Detection", "⚪"),
+    ("Phase 5", "Portfolio & Trading Journal", "⚪"),
+    ("Phase 6", "Backtesting Engine", "⚪"),
+    ("Phase 7", "AI Copilot", "⚪"),
+    ("Phase 8", "Testing, optimization & polish", "⚪"),
+]
 
-fig = chart.create_dashboard()
+for phase, description, status in roadmap:
 
-st.plotly_chart(
-    fig,
-    use_container_width=True
+    col1, col2, col3 = st.columns([1, 5, 1])
+
+    with col1:
+        st.write(f"**{phase}**")
+
+    with col2:
+        st.write(description)
+
+    with col3:
+        st.write(status)
+
+
+st.divider()
+
+
+# ============================================================
+# HOW TO USE
+# ============================================================
+
+st.header("📚 Navigation")
+
+st.write(
+    """
+    Use the sidebar to navigate between the different modules.
+
+    **Dashboard** is the main stock-analysis workspace.
+
+    The other modules will be progressively implemented as the
+    project moves through Version 1.3 development.
+    """
 )
 
-st.divider()
 
-
-# --------------------------------------------------
-# LAST MARKET UPDATE
-# --------------------------------------------------
-
-last_date = history.index[-1]
-
-try:
-
-    last_date = last_date.strftime(
-        "%d %b %Y"
-    )
-
-except:
-
-    pass
-
-
-st.caption(
-    f"Last Updated : {last_date}"
-)
-# --------------------------------------------------
-# TECHNICAL INDICATORS
-# --------------------------------------------------
-
-st.subheader("📊 Technical Indicators")
-
-i1, i2, i3, i4 = st.columns(4)
-
-with i1:
-
-    st.metric(
-        "EMA 20",
-        f"{latest['EMA20']:.2f}"
-    )
-
-    st.metric(
-        "EMA 50",
-        f"{latest['EMA50']:.2f}"
-    )
-
-
-with i2:
-
-    st.metric(
-        "EMA 200",
-        f"{latest['EMA200']:.2f}"
-    )
-
-    st.metric(
-        "VWAP",
-        f"{latest['VWAP']:.2f}"
-    )
-
-
-with i3:
-
-    st.metric(
-        "RSI",
-        f"{latest['RSI']:.2f}"
-    )
-
-    st.metric(
-        "ADX",
-        f"{latest['ADX']:.2f}"
-    )
-
-
-with i4:
-
-    st.metric(
-        "ATR",
-        f"{latest['ATR']:.2f}"
-    )
-
-    st.metric(
-        "Stoch RSI",
-        f"{latest['STOCH_RSI']:.2f}"
-    )
-
-st.divider()
-
-# --------------------------------------------------
-# AI SCORE
-# --------------------------------------------------
-st.subheader("🕯 Candlestick Pattern")
-
-c1, c2, c3 = st.columns(3)
-
-with c1:
-
-    st.metric(
-        "Pattern",
-        pattern["pattern"]
-    )
-
-with c2:
-
-    st.metric(
-        "Confidence",
-        f"{pattern['confidence']}%"
-    )
-
-with c3:
-
-    st.metric(
-        "Meaning",
-        pattern["meaning"]
-    )
-
-st.divider()
-
-st.subheader("🧠 AI Trading Score")
-
-c1, c2 = st.columns(2)
-
-with c1:
-
-    st.metric(
-        "Overall Score",
-        f"{score['score']} / 100"
-    )
-
-with c2:
-
-    st.metric(
-        "Recommendation",
-        score["signal"]
-    )
-
-st.progress(score["score"] / 100)
-
-st.markdown("### Why?")
-
-for reason in score["reasons"]:
-
-    st.write(reason)
-
-st.divider()
-
-st.subheader("🎯 Trade Setup")
-
-c1, c2, c3 = st.columns(3)
-
-with c1:
-
-    currency = "₹"
-
-    if not stock.symbol.endswith((".NS", ".BO")):
-        currency = "$"
-
-    st.metric(
-        "Entry",
-        f"{currency} {trade['entry']:.2f}"
-    )
-
-    st.metric(
-        "Stop Loss",
-        f"{currency} {trade['stoploss']:.2f}"
-    )
-
-with c2:
-
-    st.metric(
-        "Target 1",
-        f"{currency} {trade['target1']:.2f}"
-    )
-
-    st.metric(
-        "Target 2",
-        f"{currency} {trade['target2']:.2f}"
-    )
-
-with c3:
-
-    st.metric(
-        "Target 3",
-        f"{currency} {trade['target3']:.2f}"
-    )
-
-    st.metric(
-        "Risk",
-        trade["risk"]
-    )
-
-st.metric(
-    "Risk : Reward",
-    f"1 : {trade['rr']:.2f}"
-)
-
-st.divider()
-
-# --------------------------------------------------
-# QUICK MARKET SIGNALS
-# --------------------------------------------------
-
-st.subheader("🚦 Quick Market Signals")
-
-s1, s2, s3 = st.columns(3)
-
-
-# RSI Signal
-
-with s1:
-
-    if latest["RSI"] >= 70:
-
-        st.error(
-            "🔴 RSI : Overbought"
-        )
-
-    elif latest["RSI"] <= 30:
-
-        st.success(
-            "🟢 RSI : Oversold"
-        )
-
-    else:
-
-        st.info(
-            "🟡 RSI : Neutral"
-        )
-
-
-# EMA Trend
-
-with s2:
-
-    if (
-        latest["EMA20"] >
-        latest["EMA50"] >
-        latest["EMA200"]
-    ):
-
-        st.success(
-            "🟢 Strong Bullish Trend"
-        )
-
-    elif (
-        latest["EMA20"] <
-        latest["EMA50"] <
-        latest["EMA200"]
-    ):
-
-        st.error(
-            "🔴 Strong Bearish Trend"
-        )
-
-    else:
-
-        st.warning(
-            "🟡 Sideways Trend"
-        )
-
-
-# ADX
-
-with s3:
-
-    if latest["ADX"] >= 25:
-
-        st.success(
-            "🟢 Strong Trend"
-        )
-
-    else:
-
-        st.warning(
-            "🟡 Weak Trend"
-        )
-
-st.divider()
-
-
-# --------------------------------------------------
-# SUPPORT & RESISTANCE
-# --------------------------------------------------
-
-st.subheader("🎯 Key Technical Levels")
-
-support = levels["support"]
-
-resistance = levels["resistance"]
-
-currency = "₹"
-
-if not stock.symbol.endswith((".NS", ".BO")):
-    currency = "$"
-
-c1, c2 = st.columns(2)
-
-with c1:
-
-    st.success(
-        f"""
-Nearest Support
-
-{currency} {support:.2f}
-"""
-    )
-
-with c2:
-
-    st.error(
-        f"""
-Nearest Resistance
-
-{currency} {resistance:.2f}
-"""
-    )
-
-
-st.divider()
-
-
-# --------------------------------------------------
-# MARKET SUMMARY
-# --------------------------------------------------
-
-st.subheader("📊 Market Summary")
-
-m1, m2, m3 = st.columns(3)
-
-with m1:
-
-    if latest["Close"] > latest["EMA20"]:
-
-        st.success("✅ Price Above EMA20")
-
-    else:
-
-        st.error("❌ Price Below EMA20")
-
-
-with m2:
-
-    if latest["MACD"] > latest["MACD_SIGNAL"]:
-
-        st.success("✅ MACD Bullish")
-
-    else:
-
-        st.error("❌ MACD Bearish")
-
-
-with m3:
-
-    if latest["Close"] > latest["VWAP"]:
-
-        st.success("✅ Above VWAP")
-
-    else:
-
-        st.error("❌ Below VWAP")
-
-st.divider()
-# --------------------------------------------------
-# COMPANY INFORMATION
-# --------------------------------------------------
-
-st.subheader("🏢 Company Overview")
-
-left, right = st.columns(2)
-
-with left:
-
-    st.write(
-        "**Company:**",
-        company
-    )
-
-    st.write(
-        "**Sector:**",
-        info.get("sector", "N/A")
-    )
-
-    st.write(
-        "**Industry:**",
-        info.get("industry", "N/A")
-    )
-
-    st.write(
-        "**Country:**",
-        info.get("country", "N/A")
-    )
-
-    st.write(
-        "**Employees:**",
-        info.get(
-            "fullTimeEmployees",
-            "N/A"
-        )
-    )
-
-
-with right:
-
-    st.write(
-        "**Market Cap:**",
-        market_cap_display
-    )
-
-    st.write(
-        "**PE Ratio:**",
-        pe_ratio
-    )
-
-    st.write(
-        "**Dividend Yield:**",
-        info.get(
-            "dividendYield",
-            "N/A"
-        )
-    )
-
-    st.write(
-        "**52 Week High:**",
-        info.get(
-            "fiftyTwoWeekHigh",
-            "N/A"
-        )
-    )
-
-    st.write(
-        "**52 Week Low:**",
-        info.get(
-            "fiftyTwoWeekLow",
-            "N/A"
-        )
-    )
-
-st.divider()
-
-
-# --------------------------------------------------
-# AI ANALYSIS
-# --------------------------------------------------
-
-st.subheader("🤖 AI Trading Analysis")
-
-ai = get_ai()
-
-try:
-
-    with st.spinner(
-        "Analyzing using AI..."
-    ):
-
-        report = ai.analyze(
-            stock.symbol,
-            info,
-            history
-        )
-
-    st.markdown(report)
-
-except Exception as e:
-
-    st.error(
-        f"AI Analysis Failed\n\n{e}"
-    )
-
-    report = (
-        "AI Analysis could not be generated."
-    )
-
-
-# --------------------------------------------------
-# DOWNLOAD REPORT
-# --------------------------------------------------
-
-st.download_button(
-
-    label="📥 Download AI Report",
-
-    data=report,
-
-    file_name=f"{ticker}_AI_Report.txt",
-
-    mime="text/plain",
-
-    use_container_width=True
-
-)
-
-st.divider()
-# --------------------------------------------------
-# LATEST NEWS
-# --------------------------------------------------
-
-st.subheader("📰 Latest Market News")
-
-news = data.get("news", [])
-
-if not news:
-
-    st.info("No recent news available.")
-
-else:
-
-    for article in news[:5]:
-
-        content = article.get("content", {})
-
-        title = content.get(
-            "title",
-            "No Title"
-        )
-
-        summary = content.get(
-            "summary",
-            "No summary available."
-        )
-
-        provider = content.get(
-            "provider",
-            {}
-        ).get(
-            "displayName",
-            "Unknown"
-        )
-
-        date = content.get(
-            "pubDate",
-            ""
-        )
-
-        if date:
-
-            try:
-
-                dt = datetime.fromisoformat(
-                    date.replace("Z", "+00:00")
-                )
-
-                date = dt.strftime(
-                    "%d %b %Y • %I:%M %p UTC"
-                )
-
-            except Exception:
-
-                pass
-
-        url = content.get(
-            "canonicalUrl",
-            {}
-        ).get(
-            "url",
-            ""
-        )
-
-        with st.container(border=True):
-
-            st.markdown(f"### 📰 {title}")
-
-            st.caption(
-                f"{provider} • {date}"
-            )
-
-            st.write(summary)
-
-            if url:
-
-                st.link_button(
-                    "📖 Read Full Article",
-                    url,
-                    use_container_width=True
-                )
-
-st.divider()
-# --------------------------------------------------
+# ============================================================
 # DISCLAIMER
-# --------------------------------------------------
+# ============================================================
 
 st.warning(
     """
-⚠️ **Disclaimer**
+    ⚠️ **Educational / Research Use Only**
 
-This application is built for **educational and research purposes only**.
+    This application is intended for educational and research purposes.
+    It does not provide financial or investment advice.
 
-The AI-generated analysis is based on publicly available market data and
-technical indicators. It should **NOT** be considered financial or
-investment advice.
-
-Always perform your own research and consult a qualified financial advisor
-before making investment decisions.
-"""
+    Technical indicators, quantitative scores and AI-generated analysis
+    can be wrong. Historical backtests do not guarantee future results.
+    """
 )
+
+
+# ============================================================
+# FOOTER
+# ============================================================
 
 st.divider()
 
+left, center, right = st.columns(3)
 
-# --------------------------------------------------
-# FOOTER
-# --------------------------------------------------
+with left:
+    st.caption("📈 Stock Assistant")
 
-footer1, footer2, footer3 = st.columns(3)
+with center:
+    st.caption("Market Data: Yahoo Finance")
 
-with footer1:
+with right:
+    st.caption("🤖 AI: Groq / OpenAI-compatible API")
 
-    st.caption("🇮🇳 Market : NSE / BSE / US")
-
-with footer2:
-
-    st.caption("🤖 AI : Groq")
-
-with footer3:
-
-    st.caption("📈 Data : Yahoo Finance")
-
-
-st.markdown("---")
-
-st.caption(
-"""
-Made by Nithin Sarvesh
-
-Version 1.2
-
-Powered by Yahoo Finance • Groq • Plotly
-"""
-)
+st.caption("Version 1.3 • Architecture rebuild")

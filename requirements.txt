@@ -6,3 +6,5 @@ yfinance
 ta
 python-dotenv
 openai
+gymnasium
+stable-baselines3

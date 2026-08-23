@@ -1,0 +1,133 @@
+{
+  "version": "universal_v6",
+  "algorithm": "PPO",
+  "policy": "MlpPolicy",
+  "timesteps": 200000,
+  "observation_size": 30,
+  "actions": {
+    "0": "SHORT",
+    "1": "HALF_SHORT",
+    "2": "FLAT",
+    "3": "HALF_LONG",
+    "4": "LONG"
+  },
+  "tickers_trained": [
+    "RELIANCE",
+    "TCS",
+    "INFY",
+    "ICICIBANK",
+    "SBIN",
+    "LT",
+    "ITC"
+  ],
+  "config": {
+    "transaction_cost": 0.0005,
+    "episode_length": 252,
+    "drawdown_weight": 0.1,
+    "downside_weight": 0.35,
+    "turnover_weight": 0.002,
+    "missed_move_weight": 0.002,
+    "missed_move_atr": 1.25,
+    "learning_rate": 0.0006,
+    "n_steps": 2048,
+    "batch_size": 64,
+    "n_epochs": 10,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.01
+  },
+  "data": {
+    "RELIANCE": {
+      "resolved_symbol": "RELIANCE.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    },
+    "TCS": {
+      "resolved_symbol": "TCS.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    },
+    "INFY": {
+      "resolved_symbol": "INFY.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    },
+    "ICICIBANK": {
+      "resolved_symbol": "ICICIBANK.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    },
+    "SBIN": {
+      "resolved_symbol": "SBIN.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    },
+    "LT": {
+      "resolved_symbol": "LT.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    },
+    "ITC": {
+      "resolved_symbol": "ITC.NS",
+      "full_rows": 1041,
+      "train_rows": 728,
+      "validation_rows": 156,
+      "test_rows": 157,
+      "train_start": "2022-06-10 00:00:00+05:30",
+      "train_end": "2025-05-23 00:00:00+05:30",
+      "validation_start": "2025-05-26 00:00:00+05:30",
+      "validation_end": "2026-01-06 00:00:00+05:30",
+      "test_start": "2026-01-07 00:00:00+05:30",
+      "test_end": "2026-08-21 00:00:00+05:30"
+    }
+  },
+  "warning": "Training completion does not imply profitability. Evaluate on validation/test data."
+}
